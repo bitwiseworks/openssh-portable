@@ -12,7 +12,11 @@
  * called by a name other than "ssh" or "Secure Shell".
  */
 
+#ifdef __OS2__
+#define ETCDIR				"/@unixroot/etc"
+#else
 #define ETCDIR				"/etc"
+#endif
 
 #ifndef SSHDIR
 #define SSHDIR				ETCDIR "/ssh"
@@ -113,7 +117,11 @@
  * ~/.rhosts and /etc/hosts.equiv if rhosts authentication is enabled.
  */
 #define _PATH_SSH_HOSTS_EQUIV		SSHDIR "/shosts.equiv"
+#ifdef __OS2__
+#define _PATH_RHOSTS_EQUIV		"/@unixroot/etc/hosts.equiv"
+#else
 #define _PATH_RHOSTS_EQUIV		"/etc/hosts.equiv"
+#endif
 
 /*
  * Default location of askpass

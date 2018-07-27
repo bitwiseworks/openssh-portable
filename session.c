@@ -802,7 +802,11 @@ do_motd(void)
 		f = fopen(login_getcapstr(lc, "welcome", "/etc/motd",
 		    "/etc/motd"), "r");
 #else
+#ifdef __OS2__
+		f = fopen("/@unixroot/etc/motd", "r");
+#else
 		f = fopen("/etc/motd", "r");
+#endif
 #endif
 		if (f) {
 			while (fgets(buf, sizeof(buf), f))
