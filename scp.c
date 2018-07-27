@@ -497,7 +497,7 @@ main(int argc, char **argv)
 		case 't':	/* "to" */
 			iamremote = 1;
 			tflag = 1;
-#ifdef HAVE_CYGWIN
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
 			setmode(0, O_BINARY);
 #endif
 			break;
