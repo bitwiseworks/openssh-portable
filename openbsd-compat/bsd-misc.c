@@ -42,7 +42,7 @@ char *__progname;
 char *ssh_get_progname(char *argv0)
 {
 	char *p, *q;
-#ifdef HAVE___PROGNAME
+#if defined(HAVE___PROGNAME) && !defined(__OS2__)
 	extern char *__progname;
 
 	p = __progname;
