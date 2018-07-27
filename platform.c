@@ -82,8 +82,8 @@ platform_post_fork_child(void)
 int
 platform_privileged_uidswap(void)
 {
-#ifdef HAVE_CYGWIN
-	/* uid 0 is not special on Cygwin so always try */
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
+	/* uid 0 is not special on Cygwin and OS/2 so always try */
 	return 1;
 #else
 	return (getuid() == 0 || geteuid() == 0);
