@@ -60,6 +60,12 @@ void free_windows_environment(char **);
 #define open binary_open
 #endif
 
+#elif defined(__OS2__)
+int binary_open(const char *, int , ...);
+#ifndef NO_BINARY_OPEN
+#define open binary_open
+#endif
+
 #endif /* HAVE_CYGWIN */
 
 #endif /* _BSD_CYGWIN_UTIL_H */

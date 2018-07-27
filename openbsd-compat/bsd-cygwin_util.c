@@ -30,14 +30,16 @@
 #define NO_BINARY_OPEN	/* Avoid redefining open to binary_open for this file */
 #include "includes.h"
 
-#ifdef HAVE_CYGWIN
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
 
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 
+#ifdef HAVE_CYGWIN
 #include "xmalloc.h"
+#endif
 
 int
 binary_open(const char *filename, int flags, ...)
@@ -51,6 +53,7 @@ binary_open(const char *filename, int flags, ...)
 	return (open(filename, flags | O_BINARY, mode));
 }
 
+#ifdef HAVE_CYGWIN
 int
 check_ntsec(const char *filename)
 {
@@ -117,3 +120,4 @@ free_windows_environment(char **p)
 }
 
 #endif /* HAVE_CYGWIN */
+#endif /* HAVE_CYGWIN  || __OS2__ */
