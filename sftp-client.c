@@ -68,7 +68,7 @@ extern int showprogress;
 #define MAX_DIR_DEPTH 64
 
 /* Directory separator characters */
-#ifdef HAVE_CYGWIN
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
 # define SFTP_DIRECTORY_CHARS      "/\\"
 #else /* HAVE_CYGWIN */
 # define SFTP_DIRECTORY_CHARS      "/"
