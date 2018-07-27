@@ -219,6 +219,14 @@ int asprintf(char **, const char *, ...);
 
 #ifndef HAVE_OPENPTY
 # include <sys/ioctl.h>	/* for struct winsize */
+#ifdef __OS2__
+struct winsize {
+   unsigned short ws_row;
+   unsigned short ws_col;
+   unsigned short ws_xpixel;
+   unsigned short ws_ypixel;
+};
+#endif
 int openpty(int *, int *, char *, struct termios *, struct winsize *);
 #endif /* HAVE_OPENPTY */
 
@@ -247,12 +255,14 @@ long long strtonum(const char *, long long, long long, const char **);
 # define mblen(x, y)	(1)
 #endif
 
+#ifndef __OS2__
 #ifndef HAVE_WCWIDTH
 # define wcwidth(x)	(((x) >= 0x20 && (x) <= 0x7e) ? 1 : -1)
 /* force our no-op nl_langinfo and mbtowc */
 # undef HAVE_NL_LANGINFO
 # undef HAVE_MBTOWC
 # undef HAVE_LANGINFO_H
+#endif
 #endif
 
 #ifndef HAVE_NL_LANGINFO
@@ -293,10 +303,16 @@ int vsnprintf(char *, size_t, const char *, va_list);
 #endif
 
 #ifndef HAVE_USER_FROM_UID
+#ifdef __OS2__
+const
+#endif
 char *user_from_uid(uid_t, int);
 #endif
 
 #ifndef HAVE_GROUP_FROM_GID
+#ifdef __OS2__
+const
+#endif
 char *group_from_gid(gid_t, int);
 #endif
 

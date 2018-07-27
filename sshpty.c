@@ -158,7 +158,9 @@ pty_change_window_size(int ptyfd, u_int row, u_int col,
 	w.ws_col = col;
 	w.ws_xpixel = xpixel;
 	w.ws_ypixel = ypixel;
+#ifndef __OS2__
 	(void) ioctl(ptyfd, TIOCSWINSZ, &w);
+#endif
 }
 
 void

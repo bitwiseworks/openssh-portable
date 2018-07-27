@@ -294,6 +294,7 @@ setscreensize(void)
 {
 	struct winsize winsize;
 
+#ifndef __OS2__
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &winsize) != -1 &&
 	    winsize.ws_col != 0) {
 		if (winsize.ws_col > MAX_WINSIZE)
@@ -301,6 +302,7 @@ setscreensize(void)
 		else
 			win_size = winsize.ws_col;
 	} else
+#endif
 		win_size = DEFAULT_WINSIZE;
 	win_size += 1;					/* trailing \0 */
 }

@@ -3791,6 +3791,9 @@ AC_CACHE_CHECK([for sa_family_t], ac_cv_have_sa_family_t, [
 	[ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifdef __OS2__
+#include <sys/un.h>
+#endif
 #include <netinet/in.h>
 		]], [[ sa_family_t foo; foo = 1235; ]])],
 		[ ac_cv_have_sa_family_t="yes" ],

@@ -44,6 +44,9 @@
 #define	MASK	(NCACHE - 1)		/* bits to store with */
 
 #ifndef HAVE_USER_FROM_UID
+#ifdef __OS2__
+const
+#endif
 char *
 user_from_uid(uid_t uid, int nouser)
 {
@@ -79,6 +82,9 @@ user_from_uid(uid_t uid, int nouser)
 #endif
 
 #ifndef HAVE_GROUP_FROM_GID
+#ifdef __OS2__
+const
+#endif
 char *
 group_from_gid(gid_t gid, int nogroup)
 {

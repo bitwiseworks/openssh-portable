@@ -68,7 +68,9 @@ extern int h_errno;
 #define _THREAD_PRIVATE(a,b,c) (c)
 
 #ifndef HAVE__RES_EXTERN
+#ifndef __OS2__ //we have it but defined a bit different
 struct __res_state _res;
+#endif
 #endif
 
 /* Necessary functions and macros */

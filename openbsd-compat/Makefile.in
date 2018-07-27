@@ -17,7 +17,6 @@ LDFLAGS=-L. @LDFLAGS@
 OPENBSD=base64.o \
 	basename.o \
 	bcrypt_pbkdf.o \
-	bcrypt_pbkdf.o \
 	bindresvport.o \
 	blowfish.o \
 	daemon.o \

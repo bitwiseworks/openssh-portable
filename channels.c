@@ -4300,8 +4300,10 @@ channel_send_window_changes(struct ssh *ssh)
 		if (sc->channels[i] == NULL || !sc->channels[i]->client_tty ||
 		    sc->channels[i]->type != SSH_CHANNEL_OPEN)
 			continue;
+#ifndef __OS2__
 		if (ioctl(sc->channels[i]->rfd, TIOCGWINSZ, &ws) < 0)
 			continue;
+#endif
 		channel_request_start(ssh, i, "window-change", 0);
 		if ((r = sshpkt_put_u32(ssh, (u_int)ws.ws_col)) != 0 ||
 		    (r = sshpkt_put_u32(ssh, (u_int)ws.ws_row)) != 0 ||

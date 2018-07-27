@@ -820,8 +820,10 @@ do_ls_dir(struct sftp_conn *conn, const char *path,
 		m += strlen(tmp);
 		free(tmp);
 
+#ifndef __OS2__
 		if (ioctl(fileno(stdin), TIOCGWINSZ, &ws) != -1)
 			width = ws.ws_col;
+#endif
 
 		columns = width / (m + 2);
 		columns = MAXIMUM(columns, 1);
@@ -948,8 +950,10 @@ do_globbed_ls(struct sftp_conn *conn, const char *path,
 		return err;
 	}
 
+#ifndef __OS2__
 	if (ioctl(fileno(stdin), TIOCGWINSZ, &ws) != -1)
 		width = ws.ws_col;
+#endif
 
 	if (!(lflag & LS_SHORT_VIEW)) {
 		/* Count entries for sort and find longest filename */

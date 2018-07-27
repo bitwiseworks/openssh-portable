@@ -180,7 +180,9 @@ openpty(int *amaster, int *aslave, char *name, struct termios *termp,
 		/* set tty modes to a sane state for broken clients */
 		if (tcgetattr(*amaster, &tio) != -1) {
 			tio.c_lflag |= (ECHO | ISIG | ICANON);
+#ifndef __OS2__
 			tio.c_oflag |= (OPOST | ONLCR);
+#endif
 			tio.c_iflag |= ICRNL;
 			tcsetattr(*amaster, TCSANOW, &tio);
 		}

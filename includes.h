@@ -25,6 +25,10 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h> /* For CMSG_* */
+#ifdef __OS2__
+#include <sys/un.h>  /* for sa_family_t */
+#include <io.h>      /* for setmode() */
+#endif
 
 #ifdef HAVE_LIMITS_H
 # include <limits.h> /* For PATH_MAX, _POSIX_HOST_NAME_MAX */
