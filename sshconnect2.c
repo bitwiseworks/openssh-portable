@@ -77,6 +77,10 @@
 #include "ssh-gss.h"
 #endif
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 /* import */
 extern char *client_version_string;
 extern char *server_version_string;

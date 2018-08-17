@@ -47,6 +47,10 @@
 #include "ssh.h"
 #include "uidswap.h"
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 static char *
 ssh_askpass(char *askpass, const char *msg)
 {

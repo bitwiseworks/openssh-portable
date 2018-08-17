@@ -120,6 +120,10 @@
 #include "progressmeter.h"
 #include "utf8.h"
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 extern char *__progname;
 
 #define COPY_BUFLEN	16384

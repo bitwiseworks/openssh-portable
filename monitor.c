@@ -105,6 +105,10 @@
 #include "match.h"
 #include "ssherr.h"
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 #ifdef GSSAPI
 static Gssctxt *gsscontext = NULL;
 #endif

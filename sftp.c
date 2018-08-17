@@ -71,6 +71,10 @@ typedef void EditLine;
 #include "sftp-common.h"
 #include "sftp-client.h"
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 #define DEFAULT_COPY_BUFLEN	32768	/* Size of buffer for up/download */
 #define DEFAULT_NUM_REQUESTS	64	/* # concurrent outstanding requests */
 

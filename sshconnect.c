@@ -71,6 +71,10 @@
 #include "ssherr.h"
 #include "authfd.h"
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 char *client_version_string = NULL;
 char *server_version_string = NULL;
 struct sshkey *previous_host_key = NULL;

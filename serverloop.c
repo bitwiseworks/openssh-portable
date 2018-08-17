@@ -78,6 +78,10 @@
 #include "serverloop.h"
 #include "ssherr.h"
 
+#ifdef __OS2__
+#define pipe(A) socketpair(AF_UNIX, SOCK_STREAM,0, A)
+#endif
+
 extern ServerOptions options;
 
 /* XXX */
