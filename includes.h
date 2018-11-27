@@ -28,6 +28,7 @@
 #ifdef __OS2__
 #include <sys/un.h>  /* for sa_family_t */
 #include <io.h>      /* for setmode() */
+#include <libcx/net.h>
 #endif
 
 #ifdef HAVE_LIMITS_H

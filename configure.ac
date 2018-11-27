@@ -1925,6 +1925,9 @@ AC_CHECK_FUNCS([gai_strerror], [
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#ifdef __OS2__
+#include <libcx/net.h>
+#endif
 
 const char *gai_strerror(int);
 			]], [[
@@ -2298,6 +2301,9 @@ if test "x$ac_cv_func_getaddrinfo" = "xyes" && \
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#ifdef __OS2__
+#include <libcx/net.h>
+#endif
 #include <errno.h>
 #include <netinet/in.h>
 
@@ -2366,6 +2372,9 @@ if test "x$ac_cv_func_getaddrinfo" = "xyes" && \
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#ifdef __OS2__
+#include <libcx/net.h>
+#endif
 #include <errno.h>
 #include <netinet/in.h>
 
@@ -2421,7 +2430,8 @@ if test "x$ac_cv_func_getaddrinfo" = "xyes"; then
 	AC_CHECK_DECLS(AI_NUMERICSERV, , ,
 	    [#include <sys/types.h>
 	     #include <sys/socket.h>
-	     #include <netdb.h>])
+	     #include <netdb.h>
+	     #include <libcx/net.h>])
 fi
 
 if test "x$check_for_conflicting_getspnam" = "x1"; then
@@ -3883,6 +3893,9 @@ AC_CACHE_CHECK([for struct addrinfo], ac_cv_have_struct_addrinfo, [
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#ifdef __OS2__
+#include <libcx/net.h>
+#endif
 		]], [[ struct addrinfo s; s.ai_flags = AI_PASSIVE; ]])],
 	[ ac_cv_have_struct_addrinfo="yes" ],
 	[ ac_cv_have_struct_addrinfo="no"
@@ -4212,6 +4225,9 @@ AC_SEARCH_LIBS([getrrsetbyname], [resolv],
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <netdb.h>
+#ifdef __OS2__
+#include <libcx/net.h>
+#endif
 #include <resolv.h>
 				]], [[
 	res_query (0, 0, 0, 0, 0);
@@ -4226,6 +4242,9 @@ AC_SEARCH_LIBS([getrrsetbyname], [resolv],
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <netdb.h>
+#ifdef __OS2__
+#include <libcx/net.h>
+#endif
 #include <resolv.h>
 				]], [[
 	res_query (0, 0, 0, 0, 0);
