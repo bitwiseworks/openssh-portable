@@ -66,6 +66,13 @@ readpassphrase(const char *prompt, char *buf, size_t bufsiz, int flags)
 		return(NULL);
 	}
 
+#ifdef __OS2__
+	if (!(flags & RPP_ECHO_ON)) {
+		strncpy(buf, getpass(prompt), bufsiz);
+		return buf;
+	}
+#endif
+
 restart:
 	for (i = 0; i < _NSIG; i++)
 		signo[i] = 0;
