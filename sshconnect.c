@@ -319,6 +319,7 @@ check_ifaddrs(const char *ifname, int af, const struct ifaddrs *ifaddrs,
 				*rlenp = sizeof(struct sockaddr_in);
 				memcpy(resultp, sa, *rlenp);
 				return 0;
+#ifndef __OS2__
 			case AF_INET6:
 				sa6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 				v6addr = &sa6->sin6_addr;
@@ -334,6 +335,7 @@ check_ifaddrs(const char *ifname, int af, const struct ifaddrs *ifaddrs,
 				*rlenp = sizeof(struct sockaddr_in6);
 				memcpy(resultp, sa6, *rlenp);
 				return 0;
+#endif
 			}
 		}
 	}
