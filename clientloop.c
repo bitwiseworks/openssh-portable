@@ -59,6 +59,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#if __OS2__
+#define INCL_KBD
+#include <os2.h>
+#endif
+
 #include "includes.h"
 
 #include <sys/types.h>
@@ -536,6 +541,79 @@ client_wait_until_can_do_something(struct ssh *ssh,
 	}
 	if (minwait_secs != 0)
 		timeout_secs = MINIMUM(timeout_secs, (int)minwait_secs);
+
+#if __OS2__
+	KBDKEYINFO ki;
+	time_t t0 = time((time_t *) 0);
+	fd_set readset_sav;
+	fd_set writeset_sav;
+	FD_ZERO(&readset_sav);
+	FD_ZERO(&writeset_sav);
+	int readfd = -1;
+	int writefd = -1;
+	int i;
+	for(i = 0;i <= *maxfdp; i++) {
+		if (FD_ISSET(i, *readsetp)) {
+			if (isatty(i))
+				readfd = i;
+			else
+				FD_SET(i, &readset_sav);
+		}
+
+		if (FD_ISSET(i, *writesetp)) {
+			if (isatty(i))
+				writefd = i;
+			else
+				FD_SET(i, &writeset_sav);
+		}
+	}
+
+	while(1) {
+		// is there any keyboad input ready?
+		if (readfd >= 0 && (KbdPeek(&ki, 0) == 0
+			&& (ki.fbStatus & KBDTRF_FINAL_CHAR_IN))) {
+			FD_ZERO(*readsetp);
+			FD_SET(readfd, *readsetp);
+			ret = 1;
+			// stdout is always ready, if asked for
+			if (writefd >= 0) {
+				FD_ZERO(*writesetp);
+				FD_SET(writefd, *writesetp);
+			}
+			break;
+		}
+
+		tv.tv_sec = 0;
+		tv.tv_usec = (timeout_secs == 0) ? 0 : (10 * 1000);
+		tvp = &tv;
+
+		memset(*readsetp, 0, *nallocp);
+		memset(*writesetp, 0, *nallocp);
+		for(i = 0;i <= *maxfdp; i++) {
+			if (FD_ISSET(i, &readset_sav))
+				FD_SET(i, *readsetp);
+			if (FD_ISSET(i, &writeset_sav))
+				FD_SET(i, *writesetp);
+		}
+
+		ret = select((*maxfdp)+1, *readsetp, *writesetp, NULL, tvp);
+
+		// stdout is always ready, if asked for
+		if (ret >= 0 && writefd >= 0) {
+			FD_SET(writefd, *writesetp);
+			ret = 1;
+		}
+		// if not timed out proceed further
+		if (ret != 0)
+			break;
+
+		// handle the timeout now
+		if (timeout_secs >= 0 && (time((time_t *) 0) - t0) >= timeout_secs) {
+			ret = 0;
+			break;
+		}
+	}
+#else
 	if (timeout_secs == INT_MAX)
 		tvp = NULL;
 	else {
@@ -545,6 +623,7 @@ client_wait_until_can_do_something(struct ssh *ssh,
 	}
 
 	ret = select((*maxfdp)+1, *readsetp, *writesetp, NULL, tvp);
+#endif
 	if (ret < 0) {
 		char buf[100];
 
