@@ -59,7 +59,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if __OS2__
+#ifdef __OS2__
 #define INCL_KBD
 #include <os2.h>
 #endif
@@ -542,7 +542,7 @@ client_wait_until_can_do_something(struct ssh *ssh,
 	if (minwait_secs != 0)
 		timeout_secs = MINIMUM(timeout_secs, (int)minwait_secs);
 
-#if __OS2__
+#ifdef __OS2__
 	KBDKEYINFO ki;
 	time_t t0 = time((time_t *) 0);
 	fd_set readset_sav;

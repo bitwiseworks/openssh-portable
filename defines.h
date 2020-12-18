@@ -411,7 +411,11 @@ struct winsize {
 #endif
 
 #ifndef _PATH_STDPATH
+# ifndef __OS2__
 # define _PATH_STDPATH "/usr/bin:/bin:/usr/sbin:/sbin"
+# else
+# define _PATH_STDPATH "/@unixroot/usr/bin;/@unixroot/usr/sbin"
+# endif
 #endif
 
 #ifndef SUPERUSER_PATH
@@ -444,6 +448,8 @@ struct winsize {
 #ifndef X_UNIX_PATH
 #  ifdef __hpux
 #    define X_UNIX_PATH "/var/spool/sockets/X11/%u"
+#  elif __OS2__
+#    define X_UNIX_PATH "\\socket\X11-unix\X%u"
 #  else
 #    define X_UNIX_PATH "/tmp/.X11-unix/X%u"
 #  endif

@@ -23,7 +23,11 @@
 #endif
 
 #ifndef _PATH_SSH_PIDDIR
+#ifndef __OS2__
 #define _PATH_SSH_PIDDIR		"/var/run"
+#else
+#define _PATH_SSH_PIDDIR		"/@unixroot/var/run"
+#endif
 #endif
 
 /*
@@ -48,7 +52,11 @@
 #define _PATH_DH_MODULI			SSHDIR "/moduli"
 
 #ifndef _PATH_SSH_PROGRAM
+#ifndef __OS2__
 #define _PATH_SSH_PROGRAM		"/usr/bin/ssh"
+#else
+#define _PATH_SSH_PROGRAM		"/@unixroot/usr/bin/ssh"
+#endif
 #endif
 
 /*
@@ -127,27 +135,47 @@
  * Default location of askpass
  */
 #ifndef _PATH_SSH_ASKPASS_DEFAULT
+#ifndef __OS2__
 #define _PATH_SSH_ASKPASS_DEFAULT	"/usr/X11R6/bin/ssh-askpass"
+#else
+#define _PATH_SSH_ASKPASS_DEFAULT	"/@unixroot/usr/X11R6/bin/ssh-askpass"
+#endif
 #endif
 
 /* Location of ssh-keysign for hostbased authentication */
 #ifndef _PATH_SSH_KEY_SIGN
+#ifndef __OS2__
 #define _PATH_SSH_KEY_SIGN		"/usr/libexec/ssh-keysign"
+#else
+#define _PATH_SSH_KEY_SIGN		"/@unixroot/usr/libexec/ssh-keysign"
+#endif
 #endif
 
 /* Location of ssh-pkcs11-helper to support keys in tokens */
 #ifndef _PATH_SSH_PKCS11_HELPER
+#ifndef __OS2__
 #define _PATH_SSH_PKCS11_HELPER		"/usr/libexec/ssh-pkcs11-helper"
+#else
+#define _PATH_SSH_PKCS11_HELPER		"/@unixroot/usr/libexec/ssh-pkcs11-helper"
+#endif
 #endif
 
 /* xauth for X11 forwarding */
 #ifndef _PATH_XAUTH
+#ifndef __OS2__
 #define _PATH_XAUTH			"/usr/X11R6/bin/xauth"
+#else
+#define _PATH_XAUTH			"/@unixroot/usr/X11R6/bin/xauth"
+#endif
 #endif
 
 /* UNIX domain socket for X11 server; displaynum will replace %u */
 #ifndef _PATH_UNIX_X
+#ifndef __OS2__
 #define _PATH_UNIX_X "/tmp/.X11-unix/X%u"
+#else
+#define _PATH_UNIX_X "\\socket\X11-unix\X%u"
+#endif
 #endif
 
 /* for scp */
@@ -157,17 +185,29 @@
 
 /* for sftp */
 #ifndef _PATH_SFTP_SERVER
+#ifndef __OS2__
 #define _PATH_SFTP_SERVER		"/usr/libexec/sftp-server"
+#else
+#define _PATH_SFTP_SERVER		"/@unixroot/usr/libexec/sftp-server"
+#endif
 #endif
 
 /* chroot directory for unprivileged user when UsePrivilegeSeparation=yes */
 #ifndef _PATH_PRIVSEP_CHROOT_DIR
+#ifndef __OS2__
 #define _PATH_PRIVSEP_CHROOT_DIR	"/var/empty"
+#else
+#define _PATH_PRIVSEP_CHROOT_DIR	"/@unixroot/var/empty"
+#endif
 #endif
 
 /* for passwd change */
 #ifndef _PATH_PASSWD_PROG
+#ifndef __OS2__
 #define _PATH_PASSWD_PROG             "/usr/bin/passwd"
+#else
+#define _PATH_PASSWD_PROG             "/@unixroot/usr/bin/passwd"
+#endif
 #endif
 
 #ifndef _PATH_LS
@@ -176,5 +216,9 @@
 
 /* Askpass program define */
 #ifndef ASKPASS_PROGRAM
+#ifndef __OS2__
 #define ASKPASS_PROGRAM         "/usr/lib/ssh/ssh-askpass"
+#else
+#define ASKPASS_PROGRAM         "/@unixroot/usr/lib/ssh/ssh-askpass"
+#endif
 #endif /* ASKPASS_PROGRAM */

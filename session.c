@@ -203,7 +203,11 @@ auth_input_request_forwarding(struct ssh *ssh, struct passwd * pw)
 	temporarily_use_uid(pw);
 
 	/* Allocate a buffer for the socket name, and format the name. */
+#ifndef __OS2__
 	auth_sock_dir = xstrdup("/tmp/ssh-XXXXXXXXXX");
+#else
+	auth_sock_dir = xstrdup("/@unixroot/var/tmp/ssh-XXXXXXXXXX");
+#endif
 
 	/* Create private directory for socket */
 	if (mkdtemp(auth_sock_dir) == NULL) {
@@ -268,7 +272,11 @@ prepare_auth_info_file(struct passwd *pw, struct sshbuf *info)
 		return;
 
 	temporarily_use_uid(pw);
+#ifndef __OS2__
 	auth_info_file = xstrdup("/tmp/sshauth.XXXXXXXXXXXXXXX");
+#else
+	auth_info_file = xstrdup("/@unixroot/var/tmp/sshauth.XXXXXXXXXXXXXXX");
+#endif
 	if ((fd = mkstemp(auth_info_file)) == -1) {
 		error("%s: mkstemp: %s", __func__, strerror(errno));
 		goto out;

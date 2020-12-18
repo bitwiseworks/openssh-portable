@@ -1408,7 +1408,11 @@ mktemp_proto(char *s, size_t len)
 		if (r > 0 && (size_t)r < len)
 			return;
 	}
+#ifndef __OS2__
 	r = snprintf(s, len, "/tmp/ssh-XXXXXXXXXXXX");
+#else
+	r = snprintf(s, len, "/@unixroot/var/tmp/ssh-XXXXXXXXXXXX");
+#endif
 	if (r < 0 || (size_t)r >= len)
 		fatal("%s: template string too short", __func__);
 }

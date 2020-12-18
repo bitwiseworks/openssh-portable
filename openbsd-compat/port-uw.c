@@ -93,7 +93,11 @@ sys_auth_passwd(struct ssh *ssh, const char *password)
 int
 nischeck(char *namep)
 {
+#ifndef __OS2__
 	char password_file[] = "/etc/passwd";
+#else
+	char password_file[] = "/@unixroot/etc/passwd";
+#endif
 	FILE *fd;
 	struct passwd *ent = NULL;
 
