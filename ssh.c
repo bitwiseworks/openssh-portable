@@ -601,6 +601,16 @@ main(int ac, char **av)
 	 * Save the original real uid.  It will be needed later (uid-swapping
 	 * may clobber the real uid).
 	 */
+#ifdef __OS2__
+	if (getenv("USER") != NULL) {
+		int rc;
+		pw = getpwnam(getenv("USER"));
+		if (pw) {
+			rc = setuid(pw->pw_uid);
+			rc = setgid(pw->pw_gid);
+		}
+	}
+#endif
 	original_real_uid = getuid();
 	original_effective_uid = geteuid();
 
