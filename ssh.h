@@ -1,4 +1,4 @@
-/* $OpenBSD: ssh.h,v 1.87 2017/05/07 23:15:59 djm Exp $ */
+/* $OpenBSD: ssh.h,v 1.90 2020/07/14 23:57:01 djm Exp $ */
 
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
@@ -29,13 +29,6 @@
  * in configuration files or on the command line.
  */
 #define SSH_MAX_IDENTITY_FILES		100
-
-/*
- * Maximum length of lines in authorized_keys file.
- * Current value permits 16kbit RSA keys and 8kbit DSA keys, with
- * some room for options and comments.
- */
-#define SSH_MAX_PUBKEY_BYTES		16384
 
 /*
  * Major protocol version.  Different version indicates major incompatibility
@@ -75,6 +68,11 @@
 #define SSH_ASKPASS_ENV		"SSH_ASKPASS"
 
 /*
+ * Environment variable to control whether or not askpass is used.
+ */
+#define SSH_ASKPASS_REQUIRE_ENV		"SSH_ASKPASS_REQUIRE"
+
+/*
  * Force host key length and server key length to differ by at least this
  * many bits.  This is to make double encryption with rsaref work.
  */
@@ -100,3 +98,7 @@
 
 /* Listen backlog for sshd, ssh-agent and forwarding sockets */
 #define SSH_LISTEN_BACKLOG		128
+
+/* Limits for banner exchange */
+#define SSH_MAX_BANNER_LEN		8192
+#define SSH_MAX_PRE_BANNER_LINES	1024

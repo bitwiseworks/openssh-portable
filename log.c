@@ -1,4 +1,4 @@
-/* $OpenBSD: log.c,v 1.50 2017/05/17 01:24:17 djm Exp $ */
+/* $OpenBSD: log.c,v 1.52 2020/07/03 06:46:41 djm Exp $ */
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
  * Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -104,6 +104,12 @@ static struct {
 	{ "DEBUG3",	SYSLOG_LEVEL_DEBUG3 },
 	{ NULL,		SYSLOG_LEVEL_NOT_SET }
 };
+
+LogLevel
+log_level_get(void)
+{
+	return log_level;
+}
 
 SyslogFacility
 log_facility_number(char *name)
@@ -363,6 +369,14 @@ void
 log_redirect_stderr_to(const char *logfile)
 {
 	int fd;
+
+	if (logfile == NULL) {
+		if (log_stderr_fd != STDERR_FILENO) {
+			close(log_stderr_fd);
+			log_stderr_fd = STDERR_FILENO;
+		}
+		return;
+	}
 
 	if ((fd = open(logfile, O_WRONLY|O_CREAT|O_APPEND, 0600)) == -1) {
 		fprintf(stderr, "Couldn't open logfile %s: %s\n", logfile,

@@ -7,12 +7,15 @@ VPATH=@srcdir@
 CC=@CC@
 LD=@LD@
 CFLAGS=@CFLAGS@
+CFLAGS_NOPIE=@CFLAGS_NOPIE@
 CPPFLAGS=-I. -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @DEFS@
+PICFLAG=@PICFLAG@
 LIBS=@LIBS@
 AR=@AR@
 RANLIB=@RANLIB@
 INSTALL=@INSTALL@
 LDFLAGS=-L. @LDFLAGS@
+LDFLAGS_NOPIE=-L. -Lopenbsd-compat/ @LDFLAGS_NOPIE@
 
 OPENBSD=base64.o \
 	basename.o \
@@ -24,6 +27,7 @@ OPENBSD=base64.o \
 	explicit_bzero.o \
 	fmt_scaled.o \
 	freezero.o \
+	fnmatch.o \
 	getcwd.o \
 	getgrouplist.o \
 	getopt_long.o \
@@ -33,13 +37,12 @@ OPENBSD=base64.o \
 	inet_ntoa.o \
 	inet_ntop.o \
 	md5.o \
+	memmem.o \
 	mktemp.o \
 	pwcache.o \
 	readpassphrase.o \
 	reallocarray.o \
-	realpath.o \
 	recallocarray.o \
-	rmd160.o \
 	rresvport.o \
 	setenv.o \
 	setproctitle.o \
@@ -67,6 +70,7 @@ COMPAT=	arc4random.o \
 	bsd-cygwin_util.o \
 	bsd-err.o \
 	bsd-flock.o \
+	bsd-getline.o \
 	bsd-getpagesize.o \
 	bsd-getpeereid.o \
 	bsd-malloc.o \
@@ -83,6 +87,7 @@ COMPAT=	arc4random.o \
 	getrrsetbyname-ldns.o \
 	kludge-fd_set.o \
 	openssl-compat.o \
+	libressl-api-compat.o \
 	xcrypt.o
 
 PORTS=	port-aix.o \
@@ -93,7 +98,7 @@ PORTS=	port-aix.o \
 	port-uw.o
 
 .c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $<
+	$(CC) $(CFLAGS_NOPIE) $(PICFLAG) $(CPPFLAGS) -c $<
 
 all: libopenbsd-compat.a
 

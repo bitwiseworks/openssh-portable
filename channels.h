@@ -1,4 +1,4 @@
-/* $OpenBSD: channels.h,v 1.130 2017/09/21 19:16:53 markus Exp $ */
+/* $OpenBSD: channels.h,v 1.135 2020/09/20 05:47:25 djm Exp $ */
 
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
@@ -52,16 +52,25 @@
 #define SSH_CHANNEL_DYNAMIC		13
 #define SSH_CHANNEL_ZOMBIE		14	/* Almost dead. */
 #define SSH_CHANNEL_MUX_LISTENER	15	/* Listener for mux conn. */
-#define SSH_CHANNEL_MUX_CLIENT		16	/* Conn. to mux slave */
+#define SSH_CHANNEL_MUX_CLIENT		16	/* Conn. to mux client */
 #define SSH_CHANNEL_ABANDONED		17	/* Abandoned session, eg mux */
 #define SSH_CHANNEL_UNIX_LISTENER	18	/* Listening on a domain socket. */
 #define SSH_CHANNEL_RUNIX_LISTENER	19	/* Listening to a R-style domain socket. */
-#define SSH_CHANNEL_MUX_PROXY		20	/* proxy channel for mux-slave */
+#define SSH_CHANNEL_MUX_PROXY		20	/* proxy channel for mux-client */
 #define SSH_CHANNEL_RDYNAMIC_OPEN	21	/* reverse SOCKS, parsing request */
 #define SSH_CHANNEL_RDYNAMIC_FINISH	22	/* reverse SOCKS, finishing connect */
 #define SSH_CHANNEL_MAX_TYPE		23
 
 #define CHANNEL_CANCEL_PORT_STATIC	-1
+
+/* TCP forwarding */
+#define FORWARD_DENY		0
+#define FORWARD_REMOTE		(1)
+#define FORWARD_LOCAL		(1<<1)
+#define FORWARD_ALLOW		(FORWARD_REMOTE|FORWARD_LOCAL)
+
+#define FORWARD_ADM		0x100
+#define FORWARD_USER		0x101
 
 struct ssh;
 struct Channel;
@@ -96,8 +105,16 @@ struct channel_connect {
 /* Callbacks for mux channels back into client-specific code */
 typedef int mux_callback_fn(struct ssh *, struct Channel *);
 
+/*
+ * NB. channel IDs on the wire and in c->remote_id are uint32, but local
+ * channel IDs (e.g. c->self) only ever use the int32 subset of this range,
+ * because we use local channel ID -1 for housekeeping. Remote channels have
+ * a dedicated "have_remote_id" flag to indicate their validity.
+ */
+
 struct Channel {
 	int     type;		/* channel type/state */
+
 	int     self;		/* my own channel identifier */
 	uint32_t remote_id;	/* channel identifier for remote peer */
 	int	have_remote_id;	/* non-zero if remote_id is valid */
@@ -206,6 +223,9 @@ struct Channel {
 /* Read buffer size */
 #define CHAN_RBUF	(16*1024)
 
+/* Maximum channel input buffer size */
+#define CHAN_INPUT_MAX	(16*1024*1024)
+
 /* Hard limit on number of channels */
 #define CHANNELS_MAX_CHANNELS	(16*1024)
 
@@ -276,6 +296,7 @@ void     channel_output_poll(struct ssh *);
 int      channel_not_very_much_buffered_data(struct ssh *);
 void     channel_close_all(struct ssh *);
 int      channel_still_open(struct ssh *);
+const char *channel_format_extended_usage(const Channel *);
 char	*channel_open_message(struct ssh *);
 int	 channel_find_open(struct ssh *);
 
@@ -283,16 +304,11 @@ int	 channel_find_open(struct ssh *);
 struct Forward;
 struct ForwardOptions;
 void	 channel_set_af(struct ssh *, int af);
-void     channel_permit_all_opens(struct ssh *);
-void	 channel_add_permitted_opens(struct ssh *, char *, int);
-int	 channel_add_adm_permitted_opens(struct ssh *, char *, int);
-void	 channel_copy_adm_permitted_opens(struct ssh *,
-	    const struct fwd_perm_list *);
-void	 channel_disable_adm_local_opens(struct ssh *);
-void	 channel_update_permitted_opens(struct ssh *, int, int);
-void	 channel_clear_permitted_opens(struct ssh *);
-void	 channel_clear_adm_permitted_opens(struct ssh *);
-void 	 channel_print_adm_permitted_opens(struct ssh *);
+void     channel_permit_all(struct ssh *, int);
+void	 channel_add_permission(struct ssh *, int, int, char *, int);
+void	 channel_clear_permission(struct ssh *, int, int);
+void	 channel_disable_admin(struct ssh *, int);
+void	 channel_update_permission(struct ssh *, int, int);
 Channel	*channel_connect_to_port(struct ssh *, const char *, u_short,
 	    char *, char *, int *, const char **);
 Channel *channel_connect_to_path(struct ssh *, const char *, char *, char *);

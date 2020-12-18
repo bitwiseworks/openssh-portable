@@ -1,4 +1,4 @@
-/* $OpenBSD: readconf.h,v 1.125 2018/02/23 02:34:33 djm Exp $ */
+/* $OpenBSD: readconf.h,v 1.134 2020/08/11 09:49:57 djm Exp $ */
 
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
@@ -18,7 +18,6 @@
 
 /* Data structure for representing option data. */
 
-#define MAX_SEND_ENV		256
 #define SSH_MAX_HOSTS_FILES	32
 #define MAX_CANON_DOMAINS	32
 #define PATH_MAX_SUN		(sizeof((struct sockaddr_un *)0)->sun_path)
@@ -30,13 +29,13 @@ struct allowed_cname {
 
 typedef struct {
 	int     forward_agent;	/* Forward authentication agent. */
+	char   *forward_agent_sock_path; /* Optional path of the agent. */
 	int     forward_x11;	/* Forward X11 display. */
 	int     forward_x11_timeout;	/* Expiration for Cookies */
 	int     forward_x11_trusted;	/* Trust Forward X11 display. */
 	int     exit_on_forward_failure;	/* Exit if bind(2) fails for -L/-R */
 	char   *xauth_location;	/* Location for xauth program */
 	struct ForwardOptions fwd_opts;	/* forwarding options */
-	int     use_privileged_port;	/* Don't use privileged port if false. */
 	int     pubkey_authentication;	/* Try ssh2 pubkey authentication. */
 	int     hostbased_authentication;	/* ssh2's rhosts_rsa */
 	int     challenge_response_authentication;
@@ -69,6 +68,7 @@ typedef struct {
 	char   *macs;		/* SSH2 macs in order of preference. */
 	char   *hostkeyalgorithms;	/* SSH2 server key types in order of preference. */
 	char   *kex_algorithms;	/* SSH2 kex methods in order of preference. */
+	char   *ca_sign_algorithms;	/* Allowed CA signature algorithms */
 	char   *hostname;	/* Real host to connect. */
 	char   *host_key_alias;	/* hostname alias for .ssh/known_hosts */
 	char   *proxy_command;	/* Proxy command for connecting the host. */
@@ -83,6 +83,7 @@ typedef struct {
 	char   *bind_address;	/* local socket address for connection to sshd */
 	char   *bind_interface;	/* local interface for bind address */
 	char   *pkcs11_provider; /* PKCS#11 provider */
+	char   *sk_provider; /* Security key provider */
 	int	verify_host_key_dns;	/* Verify host key using DNS */
 
 	int     num_identity_files;	/* Number of files for RSA/DSA identities. */
@@ -96,6 +97,7 @@ typedef struct {
 	struct sshkey *certificates[SSH_MAX_CERTIFICATE_FILES];
 
 	int	add_keys_to_agent;
+	int	add_keys_to_agent_lifespan;
 	char   *identity_agent;		/* Optional path to ssh-agent socket */
 
 	/* Local TCP/IP forward requests. */
@@ -120,7 +122,9 @@ typedef struct {
 	int	server_alive_count_max;
 
 	int     num_send_env;
-	char   *send_env[MAX_SEND_ENV];
+	char   **send_env;
+	int     num_setenv;
+	char   **setenv;
 
 	char	*control_path;
 	int	control_master;
@@ -184,7 +188,7 @@ typedef struct {
 
 #define SSHCONF_CHECKPERM	1  /* check permissions on config file */
 #define SSHCONF_USERCONF	2  /* user provided config file not system */
-#define SSHCONF_POSTCANON	4  /* After hostname canonicalisation */
+#define SSHCONF_FINAL		4  /* Final pass over config, after canon. */
 #define SSHCONF_NEVERMATCH	8  /* Match/Host never matches; internal only */
 
 #define SSH_UPDATE_HOSTKEYS_NO	0
@@ -196,13 +200,16 @@ typedef struct {
 #define SSH_STRICT_HOSTKEY_YES	2
 #define SSH_STRICT_HOSTKEY_ASK	3
 
+const char *kex_default_pk_alg(void);
+char	*ssh_connection_hash(const char *thishost, const char *host,
+    const char *portstr, const char *user);
 void     initialize_options(Options *);
 void     fill_default_options(Options *);
 void	 fill_default_options_for_canonicalization(Options *);
 int	 process_config_line(Options *, struct passwd *, const char *,
     const char *, char *, const char *, int, int *, int);
 int	 read_config_file(const char *, struct passwd *, const char *,
-    const char *, Options *, int);
+    const char *, Options *, int, int *);
 int	 parse_forward(struct Forward *, const char *, int, int);
 int	 parse_jump(const char *, Options *, int);
 int	 parse_ssh_uri(const char *, char **, char **, int *);

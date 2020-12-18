@@ -13,7 +13,7 @@
 
 Summary:	OpenSSH, a free Secure Shell (SSH) protocol implementation
 Name:		openssh
-Version:	7.7p1
+Version:	8.4p1
 URL:		https://www.openssh.com/
 Release:	1
 Source0:	openssh-%{version}.tar.gz
@@ -56,7 +56,7 @@ arbitrary TCP/IP ports can also be forwarded over the secure channel.
 
 OpenSSH is OpenBSD's rework of the last free version of SSH, bringing it
 up to date in terms of security and features, as well as removing all
-patented algorithms to seperate libraries (OpenSSL).
+patented algorithms to separate libraries (OpenSSL).
 
 This package includes all files necessary for both the OpenSSH
 client and server.
@@ -70,11 +70,13 @@ arbitrary TCP/IP ports can also be forwarded over the secure channel.
 
 OpenSSH is OpenBSD's rework of the last free version of SSH, bringing it
 up to date in terms of security and features, as well as removing all
-patented algorithms to seperate libraries (OpenSSL).
+patented algorithms to separate libraries (OpenSSL).
 
 This package contains an X Window System passphrase dialog for OpenSSH.
 
 %changelog
+* Mon Jul 20 2020 Damien Miller <djm@mindrto.org>
+- Add ssh-sk-helper and corresponding manual page.
 * Wed Oct 26 2005 Iain Morgan <imorgan@nas.nasa.gov>
 - Removed accidental inclusion of --without-zlib-version-check
 * Tue Oct 25 2005 Iain Morgan <imorgan@nas.nasa.gov>
@@ -211,6 +213,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %{_libdir}/ssh/sftp-server
 %attr(4711,root,root) %{_libdir}/ssh/ssh-keysign
 %attr(0755,root,root) %{_libdir}/ssh/ssh-pkcs11-helper
+%attr(0755,root,root) %{_libdir}/ssh/ssh-sk-helper
 %attr(0644,root,root) %doc %{_mandir}/man1/scp.1*
 %attr(0644,root,root) %doc %{_mandir}/man1/sftp.1*
 %attr(0644,root,root) %doc %{_mandir}/man1/ssh.1*
@@ -224,6 +227,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644,root,root) %doc %{_mandir}/man8/sftp-server.8*
 %attr(0644,root,root) %doc %{_mandir}/man8/ssh-keysign.8*
 %attr(0644,root,root) %doc %{_mandir}/man8/ssh-pkcs11-helper.8*
+%attr(0644,root,root) %doc %{_mandir}/man8/ssh-sk-helper.8*
 %attr(0644,root,root) %doc %{_mandir}/man8/sshd.8*
 %attr(0644,root,root) /var/adm/fillup-templates/sysconfig.ssh
 

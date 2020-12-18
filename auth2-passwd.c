@@ -1,4 +1,4 @@
-/* $OpenBSD: auth2-passwd.c,v 1.15 2018/03/03 03:15:51 djm Exp $ */
+/* $OpenBSD: auth2-passwd.c,v 1.18 2020/02/26 13:40:09 jsg Exp $ */
 /*
  * Copyright (c) 2000 Markus Friedl.  All rights reserved.
  *
@@ -27,8 +27,10 @@
 
 #include <sys/types.h>
 
+#include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 #include "packet.h"
 #include "ssherr.h"
@@ -36,7 +38,6 @@
 #include "sshkey.h"
 #include "hostfile.h"
 #include "auth.h"
-#include "buffer.h"
 #ifdef GSSAPI
 #include "ssh-gss.h"
 #endif
@@ -65,8 +66,7 @@ userauth_passwd(struct ssh *ssh)
 		logit("password change not supported");
 	else if (PRIVSEP(auth_password(ssh, password)) == 1)
 		authenticated = 1;
-	explicit_bzero(password, len);
-	free(password);
+	freezero(password, len);
 	return authenticated;
 }
 

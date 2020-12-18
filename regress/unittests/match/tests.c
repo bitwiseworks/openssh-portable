@@ -1,4 +1,4 @@
-/* 	$OpenBSD: tests.c,v 1.4 2017/02/03 23:01:42 djm Exp $ */
+/* 	$OpenBSD: tests.c,v 1.7 2020/07/15 06:43:16 dtucker Exp $ */
 /*
  * Regress test for matching functions
  *
@@ -105,7 +105,7 @@ tests(void)
 
 #define CHECK_FILTER(string,filter,expected) \
 	do { \
-		char *result = match_filter_list((string), (filter)); \
+		char *result = match_filter_denylist((string), (filter)); \
 		ASSERT_STRING_EQ(result, expected); \
 		free(result); \
 	} while (0)

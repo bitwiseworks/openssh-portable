@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "log.h"
 #include "xmalloc.h"
@@ -192,7 +193,7 @@ ssh_selinux_change_context(const char *newname)
 	}
 	if ((cx = index(oldctx, ':')) == NULL || (cx = index(cx + 1, ':')) ==
 	    NULL) {
-		logit ("%s: unparseable context %s", __func__, oldctx);
+		logit ("%s: unparsable context %s", __func__, oldctx);
 		return;
 	}
 

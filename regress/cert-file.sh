@@ -1,4 +1,4 @@
-#	$OpenBSD: cert-file.sh,v 1.6 2017/04/30 23:34:55 djm Exp $
+#	$OpenBSD: cert-file.sh,v 1.8 2019/11/26 23:43:10 djm Exp $
 #	Placed in the Public Domain.
 
 tid="ssh with certificates"
@@ -52,7 +52,7 @@ echo "cert-authority $(cat $OBJ/user_ca_key1.pub)" > $OBJ/authorized_keys_$USER
 cat $OBJ/ssh_proxy | grep -v IdentityFile > $OBJ/no_identity_config
 
 # XXX: verify that certificate used was what we expect. Needs exposure of
-# keys via enviornment variable or similar.
+# keys via environment variable or similar.
 
 	# Key with no .pub should work - finding the equivalent *-cert.pub.
 verbose "identity cert with no plain public file"
@@ -120,7 +120,7 @@ if [ $? -ne 2 ]; then
 fi
 
 trace "start agent"
-eval `${SSHAGENT} -s` > /dev/null
+eval `${SSHAGENT} ${EXTRA_AGENT_ARGS} -s` > /dev/null
 r=$?
 if [ $r -ne 0 ]; then
 	fatal "could not start ssh-agent: exit code $r"
@@ -138,7 +138,7 @@ fi
 
 # try ssh with the agent and certificates
 opts="-F $OBJ/ssh_proxy"
-# with no certificates, shoud fail
+# with no certificates, should fail
 ${SSH} $opts somehost exit 52
 if [ $? -eq 52 ]; then
 	fail "ssh connect with agent in succeeded with no cert"
