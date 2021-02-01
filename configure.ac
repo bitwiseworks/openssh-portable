@@ -2571,6 +2571,7 @@ AC_RUN_IFELSE(
 #include <unistd.h>
 static void sighandler(int sig) { }
 		]], [[
+#ifndef __OS2__
 	int r;
 	pid_t pid;
 	struct sigaction sa;
@@ -2590,6 +2591,9 @@ static void sighandler(int sig) { }
 		r = select(0, NULL, NULL, NULL, NULL);
 	}
 	exit(r == -1 ? 0 : 1);
+#else
+	exit(1);
+#endif
 	]])],
 	[AC_MSG_RESULT([yes])],
 	[AC_MSG_RESULT([no])
