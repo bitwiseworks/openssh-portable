@@ -394,7 +394,9 @@ xauth_valid_string(const char *s)
 	return 1;
 }
 
+#ifndef __OS2__
 #define USE_PIPES 1
+#endif
 /*
  * This is called to fork and execute a command when we have no tty.  This
  * will call do_child from the child, and server_loop from the parent after
@@ -1695,7 +1697,11 @@ do_child(struct ssh *ssh, Session *s, const char *command)
 	fflush(NULL);
 
 	/* Get the last component of the shell name. */
+#ifndef __OS2__
 	if ((shell0 = strrchr(shell, '/')) != NULL)
+#else
+	if ((shell0 = strrchr(shell, '/')) != NULL || (shell0 = strrchr(shell, '\\')) != NULL)
+#endif
 		shell0++;
 	else
 		shell0 = shell;
@@ -1732,6 +1738,12 @@ do_child(struct ssh *ssh, Session *s, const char *command)
 	 * option to execute the command.
 	 */
 	argv[0] = (char *) shell0;
+#ifdef __OS2__
+	if (strstr(argv[0], "CMD") || strstr(argv[0], "cmd") ||
+	   (strstr(argv[0], "4OS2") || strstr(argv[0], "4os2"))
+	argv[1] = "/c";
+	else
+#endif
 	argv[1] = "-c";
 	argv[2] = (char *) command;
 	argv[3] = NULL;
