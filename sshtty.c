@@ -70,11 +70,15 @@ enter_raw_mode(int quiet)
 {
 	struct termios tio;
 
+#ifndef __OS2__ // remove the tcgetattr message (enable it when libc is fixed)
 	if (tcgetattr(fileno(stdin), &tio) == -1) {
 		if (!quiet)
 			perror("tcgetattr");
 		return;
 	}
+#else
+	return;
+#endif
 	_saved_tio = tio;
 	tio.c_iflag |= IGNPAR;
 	tio.c_iflag &= ~(ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXANY | IXOFF);
