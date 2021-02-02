@@ -1740,7 +1740,7 @@ do_child(struct ssh *ssh, Session *s, const char *command)
 	argv[0] = (char *) shell0;
 #ifdef __OS2__
 	if (strstr(argv[0], "CMD") || strstr(argv[0], "cmd") ||
-	   (strstr(argv[0], "4OS2") || strstr(argv[0], "4os2"))
+	   strstr(argv[0], "4OS2") || strstr(argv[0], "4os2"))
 	argv[1] = "/c";
 	else
 #endif
