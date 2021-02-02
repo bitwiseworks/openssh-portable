@@ -473,7 +473,7 @@ struct winsize {
 #  ifdef __hpux
 #    define X_UNIX_PATH "/var/spool/sockets/X11/%u"
 #  elif __OS2__
-#    define X_UNIX_PATH "\\socket\X11-unix\X%u"
+#    define X_UNIX_PATH "\\socket\\openssh\\%u"
 #  else
 #    define X_UNIX_PATH "/tmp/.X11-unix/X%u"
 #  endif

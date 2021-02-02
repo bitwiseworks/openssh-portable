@@ -181,7 +181,7 @@
 #ifndef __OS2__
 #define _PATH_UNIX_X "/tmp/.X11-unix/X%u"
 #else
-#define _PATH_UNIX_X "\\socket\X11-unix\X%u"
+#define _PATH_UNIX_X "\\socket\\openssh\\%u"
 #endif
 #endif
 
