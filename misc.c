@@ -69,6 +69,14 @@
 #include "ssherr.h"
 #include "platform.h"
 
+#if defined __OS2__
+# define ISSLASH(C) ((C) == '/' || (C) == '\\')
+# define HAS_DEVICE(P) \
+    ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) \
+     && (P)[1] == ':')
+# define IS_ABSOLUTE_PATH(P) (ISSLASH ((P)[0]) || HAS_DEVICE (P))
+#endif
+
 /* remove newline at end of string */
 char *
 chop(char *s)
@@ -2316,7 +2324,11 @@ format_absolute_time(uint64_t t, char *buf, size_t len)
 int
 path_absolute(const char *path)
 {
+#ifdef __OS2__
+	return IS_ABSOLUTE_PATH(path) ? 1 : 0;
+#else
 	return (*path == '/') ? 1 : 0;
+#endif
 }
 
 void
