@@ -62,9 +62,10 @@ daemon(int nochdir, int noclose)
 		_exit(0);
 	}
 
+#if !defined(__OS2__)
 	if (setsid() == -1)
 		return (-1);
-
+#endif
 	if (!nochdir)
 		(void)chdir("/");
 

@@ -479,8 +479,10 @@ do_exec_no_pty(struct ssh *ssh, Session *s, const char *command)
 		 * Create a new session and process group since the 4.4BSD
 		 * setlogin() affects the entire process group.
 		 */
+#if !defined(__OS2__)
 		if (setsid() == -1)
 			error("setsid failed: %.100s", strerror(errno));
+#endif
 
 #ifdef USE_PIPES
 		/*

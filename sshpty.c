@@ -108,8 +108,10 @@ pty_make_controlling_tty(int *ttyfd, const char *tty)
 		close(fd);
 	}
 #endif /* TIOCNOTTY */
+#if !defined(__OS2__)
 	if (setsid() == -1)
 		error("setsid: %.100s", strerror(errno));
+#endif
 
 	/*
 	 * Verify that we are successfully disconnected from the controlling

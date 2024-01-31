@@ -1487,10 +1487,12 @@ main(int ac, char **av)
 	/* child */
 	log_init(__progname, SYSLOG_LEVEL_INFO, SYSLOG_FACILITY_AUTH, 0);
 
+#if !defined(__OS2__)
 	if (setsid() == -1) {
 		error("setsid: %s", strerror(errno));
 		cleanup_exit(1);
 	}
+#endif
 
 	(void)chdir("/");
 	if ((fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
