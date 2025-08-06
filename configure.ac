@@ -1373,7 +1373,7 @@ else
 	[[
 	int a=0, b=0, c=0, d=0, n, v;
 	n = sscanf(ZLIB_VERSION, "%d.%d.%d.%d", &a, &b, &c, &d);
-	if (n != 3 && n != 4)
+	if (n < 1)
 		exit(1);
 	v = a*1000000 + b*10000 + c*100 + d;
 	fprintf(stderr, "found zlib version %s (%d)\n", ZLIB_VERSION, v);
@@ -2771,7 +2771,11 @@ if test "x$openssl" = "xyes" ; then
 				;;
 			101*)   ;; # 1.1.x
 			200*)   ;; # LibreSSL
-			300*)   ;; # OpenSSL development branch.
+			30*)
+				# OpenSSL 3; we use the 1.1x API
+				# https://openssl.org/policies/general/versioning-policy.html
+				CPPFLAGS="$CPPFLAGS -DOPENSSL_API_COMPAT=0x10100000L"
+				;;
 		        *)
 				AC_MSG_ERROR([Unknown/unsupported OpenSSL version ("$ssl_library_ver")])
 		                ;;
