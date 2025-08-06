@@ -5,6 +5,8 @@ config.h.in
 config.h.in~
 config.log
 config.status
+config.guess
+config.sub
 configure
 aclocal.m4
 openbsd-compat/Makefile
@@ -34,3 +36,7 @@ sshd
 !regress/misc/fuzz-harness/Makefile
 !regress/unittests/sshsig/Makefile
 tags
+config.guess~
+config.sub~
+configure~
+install-sh~
