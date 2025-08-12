@@ -66,6 +66,8 @@ int binary_open(const char *, int , ...);
 #ifndef NO_BINARY_OPEN
 #define open binary_open
 #endif
+char **fetch_windows_environment(void);
+void free_windows_environment(char **);
 
 #endif /* HAVE_CYGWIN */
 

@@ -41,9 +41,7 @@
 #include <wchar.h>
 #include <wctype.h>
 
-#ifdef HAVE_CYGWIN
 #include "xmalloc.h"
-#endif
 
 int
 binary_open(const char *filename, int flags, ...)
@@ -79,6 +77,7 @@ cygwin_ssh_privsep_user()
     }
   return cyg_privsep_user;
 }
+#endif
 
 #define NL(x) x, (sizeof (x) - 1)
 #define WENV_SIZ (sizeof (wenv_arr) / sizeof (wenv_arr[0]))
@@ -86,6 +85,7 @@ cygwin_ssh_privsep_user()
 static struct wenv {
 	const char *name;
 	size_t namelen;
+#ifdef HAVE_CYGWIN
 } wenv_arr[] = {
 	{ NL("ALLUSERSPROFILE=") },
 	{ NL("COMPUTERNAME=") },
@@ -99,6 +99,14 @@ static struct wenv {
 	{ NL("SYSTEMROOT=") },
 	{ NL("WINDIR=") }
 };
+#else
+} wenv_arr[] = {
+	{ NL("ETC=") },
+	{ NL("OS=") },
+	{ NL("PATH=") },
+	{ NL("UNIXROOT=") },
+};
+#endif
 
 char **
 fetch_windows_environment(void)
@@ -123,6 +131,7 @@ free_windows_environment(char **p)
 	free(p);
 }
 
+#ifdef HAVE_CYGWIN
 /*
  * Returns true if the given string matches the pattern (which may contain ?
  * and * as wildcards), and zero if it does not match.

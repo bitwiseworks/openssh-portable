@@ -966,7 +966,7 @@ read_etc_default_login(char ***env, u_int *envsize, uid_t uid)
 }
 #endif /* HAVE_ETC_DEFAULT_LOGIN */
 
-#if defined(USE_PAM) || defined(HAVE_CYGWIN)
+#if defined(USE_PAM) || defined(HAVE_CYGWIN) || defined(__OS2__)
 static void
 copy_environment_blacklist(char **source, char ***env, u_int *envsize,
     const char *blacklist)
@@ -996,7 +996,7 @@ copy_environment_blacklist(char **source, char ***env, u_int *envsize,
 }
 #endif /* defined(USE_PAM) || defined(HAVE_CYGWIN) */
 
-#ifdef HAVE_CYGWIN
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
 static void
 copy_environment(char **source, char ***env, u_int *envsize)
 {
@@ -1012,7 +1012,7 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
 	u_int i, envsize;
 	char *ocp, *cp, *value, **env, *laddr;
 	struct passwd *pw = s->pw;
-#if !defined (HAVE_LOGIN_CAP) && !defined (HAVE_CYGWIN)
+#if !defined (HAVE_LOGIN_CAP) && !defined (HAVE_CYGWIN) && !defined(__OS2__)
 	char *path = NULL;
 #endif
 
@@ -1021,7 +1021,7 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
 	env = xcalloc(envsize, sizeof(char *));
 	env[0] = NULL;
 
-#ifdef HAVE_CYGWIN
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
 	/*
 	 * The Windows environment contains some setting which are
 	 * important for a running system. They must not be dropped.
@@ -1058,7 +1058,7 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
 	else
 		child_set_env(&env, &envsize, "PATH", getenv("PATH"));
 #else /* HAVE_LOGIN_CAP */
-# ifndef HAVE_CYGWIN
+# if !defined(HAVE_CYGWIN) && !defined(__OS2__)
 	/*
 	 * There's no standard path on Windows. The path contains
 	 * important components pointing to the system directories,
