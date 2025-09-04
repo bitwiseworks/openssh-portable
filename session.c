@@ -1021,7 +1021,7 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
 	env = xcalloc(envsize, sizeof(char *));
 	env[0] = NULL;
 
-#if defined(HAVE_CYGWIN) || defined(__OS2__)
+#if defined(HAVE_CYGWIN)
 	/*
 	 * The Windows environment contains some setting which are
 	 * important for a running system. They must not be dropped.
@@ -1033,6 +1033,12 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
 		copy_environment(p, &env, &envsize);
 		free_windows_environment(p);
 	}
+#elif defined(__OS2__)
+	/*
+	 * The OS/2 environment requires all environment variables to be
+	 * preserved as many of them are required for normal system operation.
+	 */
+	copy_environment(environ, &env, &envsize);
 #endif
 
 #ifdef GSSAPI
