@@ -470,6 +470,16 @@ do_log(LogLevel level, const char *fmt, va_list args)
 		tmp_handler(level, fmtbuf, log_handler_ctx);
 		log_handler = tmp_handler;
 	} else if (log_on_stderr) {
+#if defined(HAVE_CYGWIN) || defined(__OS2__)
+		/*
+		 * stdio is in O_TEXT by default, avoid double CR,NL->CR,CR,NL translation
+		 * when the target is a regular file
+		 */
+		if (!isatty(log_stderr_fd))
+			snprintf(msgbuf, sizeof msgbuf, "%.*s\n",
+			    (int)sizeof msgbuf - 3, fmtbuf);
+		else
+#endif
 		snprintf(msgbuf, sizeof msgbuf, "%.*s\r\n",
 		    (int)sizeof msgbuf - 3, fmtbuf);
 		(void)write(log_stderr_fd, msgbuf, strlen(msgbuf));
