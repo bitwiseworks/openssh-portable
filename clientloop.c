@@ -556,26 +556,26 @@ client_wait_until_can_do_something(struct ssh *ssh,
 #ifdef __OS2__
 	KBDKEYINFO ki;
 	time_t t0 = time((time_t *) 0);
-	fd_set readset_sav;
-	fd_set writeset_sav;
-	FD_ZERO(&readset_sav);
-	FD_ZERO(&writeset_sav);
+	fd_set *readset_sav = malloc(*nallocp);
+	fd_set *writeset_sav = malloc(*nallocp);
+	memset(readset_sav, 0, *nallocp);
+	memset(writeset_sav, 0, *nallocp);
 	int readfd = -1;
 	int writefd = -1;
 	int i;
-	for(i = 0;i <= *maxfdp; i++) {
+	for (i = 0; i <= *maxfdp; i++) {
 		if (FD_ISSET(i, *readsetp)) {
 			if (isatty(i))
 				readfd = i;
 			else
-				FD_SET(i, &readset_sav);
+				FD_SET(i, readset_sav);
 		}
 
 		if (FD_ISSET(i, *writesetp)) {
 			if (isatty(i))
 				writefd = i;
 			else
-				FD_SET(i, &writeset_sav);
+				FD_SET(i, writeset_sav);
 		}
 	}
 
@@ -583,12 +583,12 @@ client_wait_until_can_do_something(struct ssh *ssh,
 		// is there any keyboad input ready?
 		if (readfd >= 0 && (KbdPeek(&ki, 0) == 0
 			&& (ki.fbStatus & KBDTRF_FINAL_CHAR_IN))) {
-			FD_ZERO(*readsetp);
+			memset(*readsetp, 0, *nallocp);
 			FD_SET(readfd, *readsetp);
 			ret = 1;
 			// stdout is always ready, if asked for
 			if (writefd >= 0) {
-				FD_ZERO(*writesetp);
+				memset(*writesetp, 0, *nallocp);
 				FD_SET(writefd, *writesetp);
 			}
 			break;
@@ -601,9 +601,9 @@ client_wait_until_can_do_something(struct ssh *ssh,
 		memset(*readsetp, 0, *nallocp);
 		memset(*writesetp, 0, *nallocp);
 		for(i = 0;i <= *maxfdp; i++) {
-			if (FD_ISSET(i, &readset_sav))
+			if (FD_ISSET(i, readset_sav))
 				FD_SET(i, *readsetp);
-			if (FD_ISSET(i, &writeset_sav))
+			if (FD_ISSET(i, writeset_sav))
 				FD_SET(i, *writesetp);
 		}
 
