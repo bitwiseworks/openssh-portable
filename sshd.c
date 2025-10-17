@@ -2091,7 +2091,7 @@ main(int ac, char **av)
 	 * controlling terminal which will result in "could not set
 	 * controlling tty" errors.
 	 */
-#if defined(__OS2__)
+#if !defined(__OS2__)
 	if (!debug_flag && !inetd_flag && setsid() == -1)
 		error("setsid: %.100s", strerror(errno));
 #endif
