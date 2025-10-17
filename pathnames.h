@@ -55,7 +55,7 @@
 #ifndef __OS2__
 #define _PATH_SSH_PROGRAM		"/usr/bin/ssh"
 #else
-#define _PATH_SSH_PROGRAM		"/@unixroot/usr/bin/ssh"
+#define _PATH_SSH_PROGRAM		"/@unixroot/usr/bin/ssh.exe"
 #endif
 #endif
 
@@ -140,7 +140,7 @@
 #ifndef __OS2__
 #define _PATH_SSH_ASKPASS_DEFAULT	"/usr/X11R6/bin/ssh-askpass"
 #else
-#define _PATH_SSH_ASKPASS_DEFAULT	"/@unixroot/usr/X11R6/bin/ssh-askpass"
+#define _PATH_SSH_ASKPASS_DEFAULT	"/@unixroot/usr/X11R6/bin/ssh-askpass.exe"
 #endif
 #endif
 
@@ -149,7 +149,7 @@
 #ifndef __OS2__
 #define _PATH_SSH_KEY_SIGN		"/usr/libexec/ssh-keysign"
 #else
-#define _PATH_SSH_KEY_SIGN		"/@unixroot/usr/libexec/ssh-keysign"
+#define _PATH_SSH_KEY_SIGN		"/@unixroot/usr/libexec/ssh-keysign.exe"
 #endif
 #endif
 
@@ -158,13 +158,17 @@
 #ifndef __OS2__
 #define _PATH_SSH_PKCS11_HELPER		"/usr/libexec/ssh-pkcs11-helper"
 #else
-#define _PATH_SSH_PKCS11_HELPER		"/@unixroot/usr/libexec/ssh-pkcs11-helper"
+#define _PATH_SSH_PKCS11_HELPER		"/@unixroot/usr/libexec/ssh-pkcs11-helper.exe"
 #endif
 #endif
 
 /* Location of ssh-sk-helper to support keys in security keys */
 #ifndef _PATH_SSH_SK_HELPER
+#ifndef __OS2__
 #define _PATH_SSH_SK_HELPER		"/usr/libexec/ssh-sk-helper"
+#else
+#define _PATH_SSH_SK_HELPER		"/@unixroot/usr/libexec/ssh-sk-helper.exe"
+#endif
 #endif
 
 /* xauth for X11 forwarding */
@@ -172,7 +176,7 @@
 #ifndef __OS2__
 #define _PATH_XAUTH			"/usr/X11R6/bin/xauth"
 #else
-#define _PATH_XAUTH			"/@unixroot/usr/X11R6/bin/xauth"
+#define _PATH_XAUTH			"/@unixroot/usr/X11R6/bin/xauth.exe"
 #endif
 #endif
 
@@ -195,7 +199,7 @@
 #ifndef __OS2__
 #define _PATH_SFTP_SERVER		"/usr/libexec/sftp-server"
 #else
-#define _PATH_SFTP_SERVER		"/@unixroot/usr/libexec/sftp-server"
+#define _PATH_SFTP_SERVER		"/@unixroot/usr/libexec/sftp-server.exe"
 #endif
 #endif
 
@@ -213,7 +217,7 @@
 #ifndef __OS2__
 #define _PATH_PASSWD_PROG             "/usr/bin/passwd"
 #else
-#define _PATH_PASSWD_PROG             "/@unixroot/usr/bin/passwd"
+#define _PATH_PASSWD_PROG             "/@unixroot/usr/bin/passwd.exe"
 #endif
 #endif
 
@@ -226,6 +230,6 @@
 #ifndef __OS2__
 #define ASKPASS_PROGRAM         "/usr/lib/ssh/ssh-askpass"
 #else
-#define ASKPASS_PROGRAM         "/@unixroot/usr/lib/ssh/ssh-askpass"
+#define ASKPASS_PROGRAM         "/@unixroot/usr/lib/ssh/ssh-askpass.exe"
 #endif
 #endif /* ASKPASS_PROGRAM */
