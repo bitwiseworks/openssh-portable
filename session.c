@@ -437,21 +437,45 @@ do_exec_no_pty(struct ssh *ssh, Session *s, const char *command)
 		return -1;
 	}
 #else
+#ifndef __OS2__
 	int inout[2], err[2];
+#else
+	int in[2], out[2], err[2];
+#endif
 
 	if (s == NULL)
 		fatal("do_exec_no_pty: no session");
 
 	/* Uses socket pairs to communicate with the program. */
+#ifndef __OS2__
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, inout) == -1) {
 		error("%s: socketpair #1: %.100s", __func__, strerror(errno));
 		return -1;
 	}
+#else
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, in) == -1) {
+		error("%s: socketpair #0: %.100s", __func__, strerror(errno));
+		return -1;
+	}
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, out) == -1) {
+		error("%s: socketpair #1: %.100s", __func__, strerror(errno));
+		close(in[0]);
+		close(in[1]);
+		return -1;
+	}
+#endif
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, err) == -1) {
 		error("%s: socketpair #2: %.100s", __func__,
 		    strerror(errno));
+#ifndef __OS2__
 		close(inout[0]);
 		close(inout[1]);
+#else
+		close(in[0]);
+		close(in[1]);
+		close(out[0]);
+		close(out[1]);
+#endif
 		return -1;
 	}
 #endif
@@ -470,8 +494,15 @@ do_exec_no_pty(struct ssh *ssh, Session *s, const char *command)
 		close(perr[0]);
 		close(perr[1]);
 #else
+#ifndef __OS2__
 		close(inout[0]);
 		close(inout[1]);
+#else
+		close(in[0]);
+		close(in[1]);
+		close(out[0]);
+		close(out[1]);
+#endif
 		close(err[0]);
 		close(err[1]);
 #endif
@@ -513,15 +544,31 @@ do_exec_no_pty(struct ssh *ssh, Session *s, const char *command)
 		/*
 		 * Redirect stdin, stdout, and stderr.  Stdin and stdout will
 		 * use the same socket, as some programs (particularly rdist)
-		 * seem to depend on it.
+		 * seem to depend on it.  Note that it's not suitable for OS/2
+		 * since it will make the child reading from stdin to block
+		 * forever and not terminate when the parent closes its side.
 		 */
+#ifndef __OS2__
 		close(inout[1]);
+#else
+		close(in[0]);
+		close(out[1]);
+#endif
 		close(err[1]);
+#ifndef __OS2__
 		if (dup2(inout[0], 0) == -1)	/* stdin */
 			perror("dup2 stdin");
 		if (dup2(inout[0], 1) == -1)	/* stdout (same as stdin) */
 			perror("dup2 stdout");
 		close(inout[0]);
+#else
+		if (dup2(in[1], 0) == -1)	/* stdin */
+			perror("dup2 stdin");
+		close(in[0]);
+		if (dup2(out[0], 1) == -1)	/* stdout */
+			perror("dup2 stdout");
+		close(out[0]);
+#endif
 		if (dup2(err[0], 2) == -1)	/* stderr */
 			perror("dup2 stderr");
 		close(err[0]);
@@ -560,14 +607,23 @@ do_exec_no_pty(struct ssh *ssh, Session *s, const char *command)
 	    s->is_subsystem, 0);
 #else
 	/* We are the parent.  Close the child sides of the socket pairs. */
+#ifndef __OS2__
 	close(inout[0]);
+#else
+	close(in[1]);
+	close(out[0]);
+#endif
 	close(err[0]);
 
 	/*
 	 * Enter the interactive session.  Note: server_loop must be able to
 	 * handle the case that fdin and fdout are the same.
 	 */
+#ifndef __OS2__
 	session_set_fds(ssh, s, inout[1], inout[1], err[1],
+#else
+	session_set_fds(ssh, s, in[0], out[1], err[1],
+#endif
 	    s->is_subsystem, 0);
 #endif
 	return 0;
@@ -1552,17 +1608,32 @@ struct fd_map {
 void fd_mapper(void * data)
 {
 	struct fd_map *d = (struct fd_map*)data;
+	debug3("fd_mapper: START {%d -> %d}", d->from, d->to);
 
 	char buf[8192]; /* Matches the default pipe buffer size in kLIBC */
-	int len;
+	int rlen, wlen;
 	while (1) {
-		len = read(d->from, buf, sizeof(buf));
-		if (len <= 0)
+		do {
+			rlen = read(d->from, buf, sizeof(buf));
+		} while (rlen < 0 && errno == EINTR);
+		if (rlen <= 0)
 			break;
-		len = write(d->to, buf, len);
-		if (len <= 0)
+		do {
+			wlen = write(d->to, buf, rlen);
+		} while (wlen < 0 && errno == EINTR);
+		if (wlen <= 0)
 			break;
 	}
+
+	debug3("fd_mapper: END {%d -> %d}", d->from, d->to);
+
+	/*
+	 * Close the descriptors when done.  It's especially important for stdin to
+	 * signal EOF to the child process that may be still polling it and let it
+	 * terminate.
+	 */
+	close(d->from);
+	close(d->to);
 }
 
 #define SET_FD_CLOEXEC(fd, msg) \
@@ -1865,7 +1936,10 @@ do_child(struct ssh *ssh, Session *s, const char *command)
 	}
 
 	int status;
-	int rc = waitpid(pid, &status, 0);
+	int rc;
+	do {
+		rc = waitpid(pid, &status, 0);
+	} while (rc == -1 && errno == EINTR);
 	debug3("%s: wait: rc (pid) %d, status: %08X", __func__, rc, status);
 	if (rc == -1) {
 		perror("waitpid");
@@ -1889,7 +1963,7 @@ do_child(struct ssh *ssh, Session *s, const char *command)
 	if (WIFEXITED(status))
 		exit(WEXITSTATUS(status));
 	if (WIFSIGNALED(status))
-		raise(WTERMSIG(status));
+		exit(128 + WTERMSIG(status));
 	/* Something unexpected, just exit with status 255 */
 	exit(255);
 #else
