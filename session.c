@@ -35,13 +35,6 @@
 
 #include "includes.h"
 
-#ifdef __OS2__
-#define INCL_DOSPROCESS
-#include <os2emx.h>
-#include <libcx/spawn2.h>
-#include <sys/wait.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/param.h>
 #ifdef HAVE_SYS_STAT_H
@@ -1599,50 +1592,6 @@ child_close_fds(struct ssh *ssh)
 	closefrom(STDERR_FILENO + 1);
 }
 
-#ifdef __OS2__
-struct fd_map {
-	int from, to;
-};
-
-/* Worker thread to to proxy I/O between stdio sockets and pipes */
-void fd_mapper(void * data)
-{
-	struct fd_map *d = (struct fd_map*)data;
-	debug3("fd_mapper: START {%d -> %d}", d->from, d->to);
-
-	char buf[8192]; /* Matches the default pipe buffer size in kLIBC */
-	int rlen, wlen;
-	while (1) {
-		do {
-			rlen = read(d->from, buf, sizeof(buf));
-		} while (rlen < 0 && errno == EINTR);
-		if (rlen <= 0)
-			break;
-		do {
-			wlen = write(d->to, buf, rlen);
-		} while (wlen < 0 && errno == EINTR);
-		if (wlen <= 0)
-			break;
-	}
-
-	debug3("fd_mapper: END {%d -> %d}", d->from, d->to);
-
-	/*
-	 * Close the descriptors when done.  It's especially important for stdin to
-	 * signal EOF to the child process that may be still polling it and let it
-	 * terminate.
-	 */
-	close(d->from);
-	close(d->to);
-}
-
-#define SET_FD_CLOEXEC(fd, msg) \
-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1) { \
-		perror(msg "CLOEXEC"); \
-		exit(1); \
-	}
-#endif
-
 /*
  * Performs common processing for the child, such as setting up the
  * environment, closing extra file descriptors, setting the user and group
@@ -1859,118 +1808,11 @@ do_child(struct ssh *ssh, Session *s, const char *command)
 	argv[1] = "-c";
 	argv[2] = (char *) command;
 	argv[3] = NULL;
-#ifdef __OS2__
-	int pin[2], pout[2], perr[2];
-
-	/*
-	 * Stdio FDs are TCP sockets here but they are not native OS/2 handles and
-	 * won't be understood by the native OS/2 apps' runtime.  Allocate pipes for
-	 * communicating with the actual spawned program for proxying I/O to sockets.
-	 */
-	if (pipe(pin) == -1) {
-		perror("pipe in");
-		exit(1);
-	}
-	if (pipe(pout) == -1) {
-		perror("pipe out");
-		exit(1);
-	}
-	if (pipe(perr) == -1) {
-		perror("pipe err");
-		exit(1);
-	}
-
-	/* Handles are O_TEXT by default, force O_BINARY to avoid CRLF translation. */
-	setmode(pin[0], O_BINARY);
-	setmode(pin[1], O_BINARY);
-	setmode(pout[0], O_BINARY);
-	setmode(pout[1], O_BINARY);
-	setmode(perr[0], O_BINARY);
-	setmode(perr[1], O_BINARY);
-
-	/* Ensure proxying pipes are not inherited by the spawned child */
-	SET_FD_CLOEXEC(pin[0], "pipe in #1");
-	SET_FD_CLOEXEC(pin[1], "pipe in #2");
-	SET_FD_CLOEXEC(pout[0], "pipe out #1");
-	SET_FD_CLOEXEC(pout[1], "pipe out #2");
-	SET_FD_CLOEXEC(perr[0], "pipe err #1");
-	SET_FD_CLOEXEC(perr[1], "pipe err #2");
-
-	/* Set mappings for mapping threads (from -> to) */
-	struct fd_map maps[3] = {
-		{ 0, pin[1] }, /* stdin */
-		{ pout[0], 1 }, /* stdout */
-		{ perr[0], 2 }, /* stder */
-	};
-
-	/* Set child ends of pipes as its standard I/O */
-	int child_fds [3] = { pin[0], pout[1], perr[1] };
-
-	debug3("%s: spawn: [%s][%s][%s][%s]", __func__, shell, argv[0], argv[1],
+	debug3("%s: execve: [%s][%s][%s][%s]", __func__, shell, argv[0], argv[1],
 	    argv[2]);
-	int pid = spawn2(P_NOWAIT, shell, (const char**)argv, NULL,
-	    (const char **)env, child_fds);
-	if (pid == -1) {
-		perror(shell);
-		exit(1);
-	}
-
-	/* Close child ends of the pipes */
-	close(pin[0]);
-	close(pout[1]);
-	close(perr[1]);
-
-	/* Start threads to proxy I/O between stdio sockets and pipes */
-	if (_beginthread(fd_mapper, NULL, 0, &maps[0]) == -1) {
-		perror("_beginthread stdin");
-		exit(1);
-	}
-	int tout, terr;
-	if ((tout = _beginthread(fd_mapper, NULL, 0, &maps[1])) == -1) {
-		perror("_beginthread stdout");
-		exit(1);
-	}
-	if ((terr = _beginthread(fd_mapper, NULL, 0, &maps[2])) == -1) {
-		perror("_beginthread stderr");
-		exit(1);
-	}
-
-	int status;
-	int rc;
-	do {
-		rc = waitpid(pid, &status, 0);
-	} while (rc == -1 && errno == EINTR);
-	debug3("%s: wait: rc (pid) %d, status: %08X", __func__, rc, status);
-	if (rc == -1) {
-		perror("waitpid");
-		exit(1);
-	}
-
-	/*
-	 * Wait for stdout and stderr threads to proxy up any remaining output of the
-	 * child.  Note that we don't wait for the stdin thread as the child is
-	 * already terminated and cannot read it anyway.
-	 */
-	DosWaitThread((PTID)&tout, DCWW_WAIT);
-	DosWaitThread((PTID)&terr, DCWW_WAIT);
-
-	/*
-	 * Forward the child termination status to our parent to mimic exec behavior.
-	 * Note that in kLIBC it is more complex than this but it should be fine for
-	 * SSHD (it will return -1 (255) to the client if the program is terminated
-	 * with a signal and we raise this signal here).
-	 */
-	if (WIFEXITED(status))
-		exit(WEXITSTATUS(status));
-	if (WIFSIGNALED(status))
-		exit(128 + WTERMSIG(status));
-	/* Something unexpected, just exit with status 255 */
-	exit(255);
-#else
 	execve(shell, argv, env);
 	perror(shell);
 	exit(1);
-#endif
 }
 
 void
