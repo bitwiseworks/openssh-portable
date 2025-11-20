@@ -1240,6 +1240,15 @@ EOD
 	AC_DEFINE([BROKEN_SETVBUF], [1],
 	    [LynxOS has broken setvbuf() implementation])
 	;;
+
+*-*-os2*)
+	AC_CHECK_DECL([F_CLOSEM],
+	    AC_DEFINE([HAVE_FCNTL_CLOSEM], [1], [Use F_CLOSEM fcntl for closefrom]),
+	    [],
+	    [ #include <limits.h>
+	      #include <fcntl.h> ]
+	)
+	;;
 esac
 
 AC_MSG_CHECKING([compiler and flags for sanity])
