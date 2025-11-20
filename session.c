@@ -557,7 +557,7 @@ do_exec_no_pty(struct ssh *ssh, Session *s, const char *command)
 #else
 		if (dup2(in[1], 0) == -1)	/* stdin */
 			perror("dup2 stdin");
-		close(in[0]);
+		close(in[1]);
 		if (dup2(out[0], 1) == -1)	/* stdout */
 			perror("dup2 stdout");
 		close(out[0]);
